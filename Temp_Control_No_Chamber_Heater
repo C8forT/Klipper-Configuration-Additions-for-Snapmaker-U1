@@ -156,7 +156,7 @@ gcode:
     {% if printer.print_stats.state in ['printing', 'paused'] %}
         {action_raise_error("Preheat cannot start while a print is active or paused.")}
     {% endif %}
-    {% set bed = params.BED|default(60)|float %}
+    {% set bed = params.BED|default(80)|float %}
     {% if bed < 0 or bed > 100 %}
         {action_raise_error("Use BED between 0 and 100C; verify the installed plate rating.")}
     {% endif %}

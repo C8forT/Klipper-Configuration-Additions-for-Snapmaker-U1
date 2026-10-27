@@ -1,0 +1,203 @@
+# STOCK SNAPMAKER U1: FILAMENT DRYING AND CHAMBER PREHEAT
+#
+# INSTALLATION
+# - Back up printer.cfg and any macro file before editing.
+# - Load these definitions once through the active Klipper configuration.
+#
+# HEATING
+# - Drying uses only the bed: PLA/Silk PLA/PVA 50C, PETG 60C, ABS/ASA 70C.
+# - These are starting BED setpoints, not validated drying temperatures.
+# - Chamber preheat uses an 80C bed by default, adjustable from 0 to 100C:
+#     CHAMBER_PREHEAT_ON
+#     CHAMBER_PREHEAT_ON BED=90
+# - All four hotends are set to 120C during chamber preheat only.
+# - No chamber heater is used. No motion or homing is performed.
+# - BED=80 means bed temperature, NOT chamber temperature.
+# - Neither drying nor preheat regulates chamber air temperature.
+# - Use a heat-resistant elevated spool rack, measure air near the spool,
+#   and follow filament/spool/rack temperature ratings.
+# - Bed-only heat may be inadequate for effective ABS/ASA drying.
+# - Use a plate rated for the bed target; 80-100C is above the Frostbite
+#   PETG temperature range previously supplied by the user.
+# - Retain normal automatic hotend/electronics cooling; heated operation
+#   also requires adequate cooling of printer electronics.
+#
+# TIMER, STOP, AND USE
+# - DRY_* buttons or START_FILAMENT_DRYER MATERIAL=PETG start six-hour drying.
+# - Countdown begins immediately, includes warmup, and is approximate.
+# - Timer completion/CANCEL_DRYER turn off bed and both top-cover fans.
+# - CHAMBER_PREHEAT_OFF also turns off all four hotends.
+# - Preheat cancels a pending dryer timer, but has no explicit timed shutdown.
+# - Seven-hour idle timeout is requested; shutdown resets it to ten minutes
+#   rather than restoring the prior value. Idle timeout is not a precise timer.
+# - Only start when idle. CANCEL_DRYER before starting a print; its timer
+#   otherwise could turn off the print's bed/fans. Do not run stop mid-print.
+# - Timer state is lost on Klipper restart; verify heater/fan state afterward.
+# - Selection dropdowns are not guaranteed; the six DRY_* helper buttons work
+#   as explicit calls when exposed by the client.
+# - Supervise initial operation and verify stop behavior before a long cycle.
+# - This file was template-checked locally, not tested on U1 hardware.
+
+[gcode_macro START_FILAMENT_DRYER]
+description: Start bed-assisted filament drying with top-cover fans; no chamber heater.
+# Use the DRY_* buttons or pass MATERIAL explicitly; dropdown UI is not guaranteed.
+variable_material: ['PLA', 'Silk_PLA', 'PETG', 'ABS', 'ASA', 'PVA']
+variable_time_remaining: 0
+gcode:
+    {% if printer.print_stats.state in ['printing', 'paused'] %}
+        {action_raise_error("Drying cannot start while a print is active or paused.")}
+    {% endif %}
+
+    {% if 'purifier' not in printer %}
+        {action_raise_error("Stock top-cover purifier component is not configured.")}
+    {% elif not printer['purifier'].power_detected %}
+        {action_raise_error("Top cover is not detected; check its connection before heating.")}
+    {% endif %}
+
+    # Read the requested material
+    {% set selected_material = params.MATERIAL|default('Silk_PLA')|string %}
+    
+    # Starting profiles: bed setpoint, internal circulation, exhaust, duration in seconds
+    {% set profiles = {
+        'PLA':       {'bed': 50, 'int_fan': 0.40, 'exh_fan': 0.20, 'time': 21600},
+        'Silk_PLA':  {'bed': 50, 'int_fan': 0.40, 'exh_fan': 0.20, 'time': 21600},
+        'PETG':      {'bed': 60, 'int_fan': 0.45, 'exh_fan': 0.20, 'time': 21600},
+        'ABS':       {'bed': 70, 'int_fan': 0.50, 'exh_fan': 0.20, 'time': 21600},
+        'ASA':       {'bed': 70, 'int_fan': 0.50, 'exh_fan': 0.20, 'time': 21600},
+        'PVA':       {'bed': 50, 'int_fan': 0.40, 'exh_fan': 0.20, 'time': 21600}
+    } %}
+
+    # Safeguard lookup validation check
+    {% if selected_material in profiles %}
+        {% set bed_temp     = profiles[selected_material].bed %}
+        {% set int_speed    = profiles[selected_material].int_fan %}
+        {% set exh_speed    = profiles[selected_material].exh_fan %}
+        {% set duration     = profiles[selected_material].time %}
+
+        SET_GCODE_VARIABLE MACRO=START_FILAMENT_DRYER VARIABLE=time_remaining VALUE={duration}
+
+        M118 Initializing quiet drying profile for selection: {selected_material}
+        G90 ; Absolute positioning
+        
+        # 1. Turn on the heated bed
+        SET_IDLE_TIMEOUT TIMEOUT=25200
+        M140 S{bed_temp}                                     
+        
+        # Manual/idle purifier mode permits both fans simultaneously.
+        SET_PURIFIER_MODE MODE=0 EXHAUST_FAN_DELAY_OFF=0 INNER_FAN_DELAY_OFF=0
+
+        # Initialize low-RPM air circulation
+        SET_PURIFIER FAN=inner SPEED={int_speed}  ; Run quiet internal fan
+        SET_PURIFIER FAN=exhaust SPEED={exh_speed}      ; Run Top Cover exhaust fan
+        
+        M118 Bed and fans initialized. Beginning background countdown...
+        UPDATE_DELAYED_GCODE ID=DRYER_TIMER_LOOP DURATION=1
+    {% else %}
+        M118 Error: Selection '{selected_material}' is invalid. Please select from the menu.
+    {% endif %}
+
+
+[delayed_gcode DRYER_TIMER_LOOP]
+gcode:
+    {% set remaining = printer["gcode_macro START_FILAMENT_DRYER"].time_remaining|int %}
+    
+    {% if remaining > 0 %}
+        {% set new_remaining = remaining - 1 %}
+        SET_GCODE_VARIABLE MACRO=START_FILAMENT_DRYER VARIABLE=time_remaining VALUE={new_remaining}
+        
+        {% if remaining % 600 == 0 %}
+            M118 Filament Drying: {(remaining / 3600)|round(1)} hours remaining...
+        {% endif %}
+        
+        UPDATE_DELAYED_GCODE ID=DRYER_TIMER_LOOP DURATION=1
+    {% else %}
+        # Clean Automated Shutdown Sequence
+        M118 Drying finished. Cooling down all systems...
+        M140 S0                                      ; Turn off bed
+        SET_IDLE_TIMEOUT TIMEOUT=600
+        SET_PURIFIER FAN=inner SPEED=0 DELAY_OFF=0     ; Turn off quiet internal fan
+        SET_PURIFIER FAN=exhaust SPEED=0 DELAY_OFF=0        ; Turn off top exhaust fan
+        M118 Filament dryer sequence complete.
+    {% endif %}
+
+[gcode_macro CANCEL_DRYER]
+description: Immediately aborts the active filament drying cycle and completely resets macro states.
+gcode:
+    UPDATE_DELAYED_GCODE ID=DRYER_TIMER_LOOP DURATION=0
+    SET_GCODE_VARIABLE MACRO=START_FILAMENT_DRYER VARIABLE=time_remaining VALUE=0
+    
+    # Safely cut power to all elements
+    M140 S0                                      ; Turn off the U1 heated bed
+    SET_IDLE_TIMEOUT TIMEOUT=600
+    SET_PURIFIER FAN=inner SPEED=0 DELAY_OFF=0     ; Cut quiet circulation fan
+    SET_PURIFIER FAN=exhaust SPEED=0 DELAY_OFF=0        ; Cut Top Cover exhaust fan
+    
+    M118 Filament drying canceled. Bed target set to zero and top-cover fans stopped.
+
+[gcode_macro DRY_PLA]
+description: Start the PLA drying profile
+gcode:
+    START_FILAMENT_DRYER MATERIAL=PLA
+
+[gcode_macro DRY_SILK_PLA]
+description: Start the Silk PLA drying profile
+gcode:
+    START_FILAMENT_DRYER MATERIAL=Silk_PLA
+
+[gcode_macro DRY_PETG]
+description: Start the PETG drying profile
+gcode:
+    START_FILAMENT_DRYER MATERIAL=PETG
+
+[gcode_macro DRY_ABS]
+description: Start the ABS drying profile
+gcode:
+    START_FILAMENT_DRYER MATERIAL=ABS
+
+[gcode_macro DRY_ASA]
+description: Start the ASA drying profile
+gcode:
+    START_FILAMENT_DRYER MATERIAL=ASA
+
+[gcode_macro DRY_PVA]
+description: Start the PVA drying profile
+gcode:
+    START_FILAMENT_DRYER MATERIAL=PVA
+
+[gcode_macro CHAMBER_PREHEAT_ON]
+description: Chamber warmup with bed, four hotends at 120C, and top-cover fans
+gcode:
+    {% if printer.print_stats.state in ['printing', 'paused'] %}
+        {action_raise_error("Preheat cannot start while a print is active or paused.")}
+    {% endif %}
+    {% if 'purifier' not in printer %}
+        {action_raise_error("Stock top-cover purifier component is not configured.")}
+    {% elif not printer['purifier'].power_detected %}
+        {action_raise_error("Top cover is not detected; check its connection before heating.")}
+    {% endif %}
+
+    {% set bed = params.BED|default(80)|float %}
+    {% if bed < 0 or bed > 100 %}
+        {action_raise_error("Use BED between 0 and 100C; verify the installed plate rating.")}
+    {% endif %}
+    UPDATE_DELAYED_GCODE ID=DRYER_TIMER_LOOP DURATION=0
+    SET_GCODE_VARIABLE MACRO=START_FILAMENT_DRYER VARIABLE=time_remaining VALUE=0
+    SET_IDLE_TIMEOUT TIMEOUT=25200
+    M140 S{bed}
+    SET_HEATER_TEMPERATURE HEATER=extruder TARGET=120
+    SET_HEATER_TEMPERATURE HEATER=extruder1 TARGET=120
+    SET_HEATER_TEMPERATURE HEATER=extruder2 TARGET=120
+    SET_HEATER_TEMPERATURE HEATER=extruder3 TARGET=120
+    SET_PURIFIER_MODE MODE=0 EXHAUST_FAN_DELAY_OFF=0 INNER_FAN_DELAY_OFF=0
+    SET_PURIFIER FAN=inner SPEED=0.40
+    SET_PURIFIER FAN=exhaust SPEED=0.20
+    M118 Bed and hotend preheat started. Chamber temperature is not regulated.
+
+[gcode_macro CHAMBER_PREHEAT_OFF]
+description: Stop preheating or drying, all four hotends, and top-cover fans
+gcode:
+    CANCEL_DRYER
+    SET_HEATER_TEMPERATURE HEATER=extruder TARGET=0
+    SET_HEATER_TEMPERATURE HEATER=extruder1 TARGET=0
+    SET_HEATER_TEMPERATURE HEATER=extruder2 TARGET=0
+    SET_HEATER_TEMPERATURE HEATER=extruder3 TARGET=0

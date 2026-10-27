@@ -1,0 +1,199 @@
+# Stock Panda Breath drying and chamber-preheat macros for a
+# Snapmaker U1 with Pax12 firmware and a Panda Breath with DragonBreath firmware.
+#
+# REQUIREMENTS
+# - Panda Breath running DragonBreath firmware.
+# - Paxx DragonBreath integration configured and working.
+# - Existing circulation_fan and exhaust_fan definitions.
+# - M141 commands supplied by the DragonBreath Klipper integration.
+# - These macros use Klipper heater control, not DragonBreath AUTO mode.
+#
+# INSTALLATION
+# - DO NOT USE WITH Panda_Breath_Control macros; use one or the other, do not load both versions.
+#
+# FILAMENT DRYING
+# - Select a material using the DRY_* helper macros, or run:
+#     START_FILAMENT_DRYER MATERIAL=PETG
+# - Profiles control the U1 bed, DragonBreath chamber target, and fans.
+# - All supplied drying profiles run for six hours (21600 seconds).
+# - The countdown begins immediately, including heater warmup time.
+# - Drying uses M141 heater control, not DragonBreath's native drying timer.
+# - The printer-side delayed timer stops the bed, chamber heat, and fans.
+# - CANCEL_DRYER cancels the timer and requests heater/fan shutdown.
+# - The countdown is not persistent across a Klipper restart.
+# - Fluidd dropdown generation from variable_material is not guaranteed;
+#   the DRY_* helper macros provide explicit material-selection buttons.
+#
+# TEMPERATURES AND AIRFLOW
+# - ABS/ASA profiles request a 70C chamber; other profiles request 50-60C.
+# - DragonBreath's configured maximum must permit the requested target.
+# - Reaching the target depends on enclosure conditions and ventilation.
+# - Confirm drying temperatures suit the filament and spool.
+# - Chamber air temperature does not establish spool or bed-contact
+#   temperature; avoid placing a spool directly on the hot bed.
+# - Fan names refer to existing custom printer-side definitions.
+# - Existing top-cover operating modes may affect fan commands.
+#
+# CHAMBER PREHEAT
+# - CHAMBER_PREHEAT_ON requests:
+#     Bed: 100C; chamber: 60C; all four nozzles: 120C.
+# - Preheat is non-blocking and has no explicit timed shutdown.
+# - CHAMBER_PREHEAT_OFF requests bed, chamber, and nozzle heat off.
+# - Do not start preheat while a drying countdown is active:
+#   CANCEL_DRYER first, because preheat does not cancel that countdown.
+#
+# OPERATING NOTES
+# - Use drying/preheat only while the printer is idle.
+# - Verify bed temperatures suit the installed build plate.
+# - Ensure printer electronics cooling is adequate for heated operation.
+# - The drying macro sets idle timeout to seven hours, then restores
+#   a fixed ten-minute timeout rather than your previous timeout.
+# - Automatic hotend/heater cooldown fans may continue after shutdown.
+
+[gcode_macro START_FILAMENT_DRYER]
+description: Start an automated active filament drying cycle with UI material selection menu.
+# Defining this list in lowercase variable syntax tells Fluidd/Mainsail to generate a selection UI:
+variable_material: ['PLA', 'Silk_PLA', 'PETG', 'ABS', 'ASA', 'PVA']
+variable_time_remaining: 0
+gcode:
+    # Fetch the choice selected by the user from the interface menu
+    {% set selected_material = params.MATERIAL|default('Silk_PLA')|string %}
+    
+    # Preset profiles: Bed, DragonBreath Chamber (M141), Quiet Circ Fan, Top Exhaust, Time
+    {% set profiles = {
+        'PLA':       {'bed': 50, 'chamber': 50,  'int_fan': 0.40, 'exh_fan': 0.15, 'time': 21600},
+        'Silk_PLA':  {'bed': 50, 'chamber': 50,  'int_fan': 0.40, 'exh_fan': 0.15, 'time': 21600},
+        'PETG':      {'bed': 60, 'chamber': 55, 'int_fan': 0.45, 'exh_fan': 0.25, 'time': 21600},
+        'ABS':       {'bed': 70, 'chamber': 70, 'int_fan': 0.50, 'exh_fan': 0.15, 'time': 21600},
+        'ASA':       {'bed': 70, 'chamber': 70, 'int_fan': 0.50, 'exh_fan': 0.15, 'time': 21600},
+        'PVA':       {'bed': 50, 'chamber': 50,  'int_fan': 0.40, 'exh_fan': 0.30, 'time': 21600}
+    } %}
+
+    # Safeguard lookup validation check
+    {% if selected_material in profiles %}
+        {% set bed_temp     = profiles[selected_material].bed %}
+        {% set chamber_temp = profiles[selected_material].chamber %}
+        {% set int_speed    = profiles[selected_material].int_fan %}
+        {% set exh_speed    = profiles[selected_material].exh_fan %}
+        {% set duration     = profiles[selected_material].time %}
+
+        SET_GCODE_VARIABLE MACRO=START_FILAMENT_DRYER VARIABLE=time_remaining VALUE={duration}
+
+        M118 Initializing quiet drying profile for selection: {selected_material}
+        G90 ; Absolute positioning
+        
+        # 1. Turn on the heated bed
+        SET_IDLE_TIMEOUT TIMEOUT=25200
+        M140 S{bed_temp}                                     
+        
+        # 2. Conditional Chamber Heat Logic
+        {% if chamber_temp > 0 %}
+            M118 Activating DragonBreath Active Chamber Heater to {chamber_temp}C...
+            M141 S{chamber_temp}
+        {% else %}
+            M118 Disabling Active Chamber Heater (Bed heat only for safety)...
+            M141 S0
+        {% endif %}
+        
+        # 3. Initialize low-RPM air circulation
+        SET_FAN_SPEED FAN=circulation_fan SPEED={int_speed}  ; Run quiet internal fan
+        SET_FAN_SPEED FAN=exhaust_fan SPEED={exh_speed}      ; Run Top Cover exhaust fan
+        
+        M118 Heaters initialized. Beginning background countdown...
+        UPDATE_DELAYED_GCODE ID=DRYER_TIMER_LOOP DURATION=1
+    {% else %}
+        M118 Error: Selection '{selected_material}' is invalid. Please select from the menu.
+    {% endif %}
+
+
+[delayed_gcode DRYER_TIMER_LOOP]
+gcode:
+    {% set remaining = printer["gcode_macro START_FILAMENT_DRYER"].time_remaining|int %}
+    
+    {% if remaining > 0 %}
+        {% set new_remaining = remaining - 1 %}
+        SET_GCODE_VARIABLE MACRO=START_FILAMENT_DRYER VARIABLE=time_remaining VALUE={new_remaining}
+        
+        {% if remaining % 600 == 0 %}
+            M118 Filament Drying: {(remaining / 3600)|round(1)} hours remaining...
+        {% endif %}
+        
+        UPDATE_DELAYED_GCODE ID=DRYER_TIMER_LOOP DURATION=1
+    {% else %}
+        # Clean Automated Shutdown Sequence
+        M118 Drying finished. Cooling down all systems...
+        M140 S0                                      ; Turn off bed
+        M141 S0                                      ; Turn off DragonBreath chamber heater
+        SET_IDLE_TIMEOUT TIMEOUT=600
+        SET_FAN_SPEED FAN=circulation_fan SPEED=0     ; Turn off quiet internal fan
+        SET_FAN_SPEED FAN=exhaust_fan SPEED=0        ; Turn off top exhaust fan
+        M118 Filament dryer sequence complete.
+    {% endif %}
+
+[gcode_macro CANCEL_DRYER]
+description: Immediately aborts the active filament drying cycle and completely resets macro states.
+gcode:
+    UPDATE_DELAYED_GCODE ID=DRYER_TIMER_LOOP DURATION=0
+    SET_GCODE_VARIABLE MACRO=START_FILAMENT_DRYER VARIABLE=time_remaining VALUE=0
+    
+    # Safely cut power to all elements
+    M140 S0                                      ; Turn off the U1 heated bed
+    M141 S0                                      ; Turn off DragonBreath chamber heater
+    SET_IDLE_TIMEOUT TIMEOUT=600
+    SET_FAN_SPEED FAN=circulation_fan SPEED=0     ; Cut quiet circulation fan
+    SET_FAN_SPEED FAN=exhaust_fan SPEED=0        ; Cut Top Cover exhaust fan
+    M104 S0                                      ; Safety nozzle check
+    
+    M118 Filament drying canceled. Heater targets set to zero. Cooling fans may continue running until cooldown is complete.
+
+[gcode_macro DRY_PLA]
+description: Start the PLA drying profile
+gcode:
+    START_FILAMENT_DRYER MATERIAL=PLA
+
+[gcode_macro DRY_SILK_PLA]
+description: Start the Silk PLA drying profile
+gcode:
+    START_FILAMENT_DRYER MATERIAL=Silk_PLA
+
+[gcode_macro DRY_PETG]
+description: Start the PETG drying profile
+gcode:
+    START_FILAMENT_DRYER MATERIAL=PETG
+
+[gcode_macro DRY_ABS]
+description: Start the ABS drying profile
+gcode:
+    START_FILAMENT_DRYER MATERIAL=ABS
+
+[gcode_macro DRY_ASA]
+description: Start the ASA drying profile
+gcode:
+    START_FILAMENT_DRYER MATERIAL=ASA
+
+[gcode_macro DRY_PVA]
+description: Start the PVA drying profile
+gcode:
+    START_FILAMENT_DRYER MATERIAL=PVA
+
+
+[gcode_macro CHAMBER_PREHEAT_ON]
+description: Preheat - bed 100C, DragonBreath 60C, nozzles 120C
+gcode:
+    M140 S100
+    M141 S60
+    SET_HEATER_TEMPERATURE HEATER=extruder TARGET=120
+    SET_HEATER_TEMPERATURE HEATER=extruder1 TARGET=120
+    SET_HEATER_TEMPERATURE HEATER=extruder2 TARGET=120
+    SET_HEATER_TEMPERATURE HEATER=extruder3 TARGET=120
+
+[gcode_macro CHAMBER_PREHEAT_OFF]
+description: Stop chamber preheating
+gcode:
+    M140 S0
+    M141 S0
+    SET_HEATER_TEMPERATURE HEATER=extruder TARGET=0
+    SET_HEATER_TEMPERATURE HEATER=extruder1 TARGET=0
+    SET_HEATER_TEMPERATURE HEATER=extruder2 TARGET=0
+    SET_HEATER_TEMPERATURE HEATER=extruder3 TARGET=0
+    M118 Chamber preheat stopped. Heater targets set to zero. Automatic cooling fans may continue running.

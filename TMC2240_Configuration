@@ -1,0 +1,22 @@
+# Defining the tmc2240 stepper parameters.
+[tmc2240 stepper_x]
+interpolate: True
+driver_TBL: 1
+driver_TOFF: 3
+driver_HSTRT: 7
+driver_HEND: 3
+driver_TPFD: 1
+
+[tmc2240 stepper_y]
+interpolate: True
+driver_TBL: 1
+driver_TOFF: 3
+driver_HSTRT: 7
+driver_HEND: 3
+driver_TPFD: 1
+
+[delayed_gcode tmc_slope_cooling]
+initial_duration: 2.0
+gcode:
+  SET_TMC_FIELD STEPPER=stepper_x FIELD=slope_control VALUE=2
+  SET_TMC_FIELD STEPPER=stepper_y FIELD=slope_control VALUE=2

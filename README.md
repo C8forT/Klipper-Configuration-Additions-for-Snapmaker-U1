@@ -1,14 +1,21 @@
+These files are provided here for development purposes.
+
 These files provide Klipper configuration statements to add features useful when using a top cover on the Snapmaker U1.  These can be added to the Klipper configuration via the Fluidd or Mainsail interface.  It is recommended to add the configuration statements to Configuration Files/extended/klipper/custom.cfg.  Alternatively, they can be added to printer.cfg, but they will be lost when there is a firmware update to the Snapmaker U1.
 
-1.  Rockchip_Temp_Display adds a temperature readout of the U1's Rockchip controller in the Thermals panel of Fluidd or the Temperatures panel of Mainsail.  These statements can be used on any Snapmaker U1.
+1.  Rockchip_Temp_Display adds a temperature readout of the U1's Rockchip controller in the Thermals panel of Fluidd or the Temperatures panel of Mainsail.  These statements can be used on any Snapmaker U1, regardless of whether it uses stock firmware or Paxx12 firmware.
+-   Rockchip_Temp_Display has been thoroughly tested in Fluidd, and is expected to work in Mainsail.
 
 2.  TMC2240_Configuration optimizes the TMC2240 stepper drivers for use with Snapmaker U1s using the Shenzhen Keli Motor Ltd. model BJ42D29-100V78 stepper motors.  This configuration can be used on any Snapmaker U1 using those stepper motors.  Credit for this configuration goes to crusardgameamos; it is a feature suggestion crusardgameamos posted for Paxx12.  THANK YOU, crusardgameamos!!!  If a future version of Paxx12 includes this or a similar TMC2240 configuration, then remove these statements from your Klipper configuration.
+-   TMC2240_Configuration has been tested to a limited extent.  Consider this beta.  If bugs are found, please report them here.
 
 3.  Panda_Breath_Control only works on a Snapmaker U1 that includes the official Snapmaker U1 Top Cover, is flashed with the Paxs12 firmware, and in which a Panda Breath running stock firmware 1.0.3 or higher has been installed.  DO NOT USE THIS IF USING DRAGONBREATH FIRMWARE IN THE PANDA BREATH!  These statements provide chamber pre-heating and filament macros in the Fluidd or Mainsail interface.
+-   Updates from Panda_Breath(DragonBreath)_Control have been back ported to Panda_Breath_Control since Panda_Breath_Control was tested.  Consider this experimental. If bugs are found, please report them here.
 
 4.  Panda_Breath(DragonBreath)_Control only works on a Snapmaker U1 that includes the official Snapmaker U1 Top Cover, is flashed with the Paxs12 firmware, and in which a Panda Breath running DragonBreath firmware has been installed.  DO NOT USE THIS IF USING STOCK FIRMWARE IN THE PANDA BREATH!  These statements provide chamber pre-heating and filament macros in the Fluidd or Mainsail interface.
+-   Panda_Breath(DragonBreath)_Control has been tested and optimized.  Consider this beta.  If bugs are found, please report them here.
 
-5.  Temp_Control_No_Chamber_Heater only works on a Snapmaker U1 that includes the official Snapmaker U1 Top Cover, and is flashed with the Paxs12 firmware.  These statements provide chamber pre-heating and filament macros in the Fluidd or Mainsail interface.
+5.  Temp_Control_No_Chamber_Heater only works on a Snapmaker U1 that includes the official Snapmaker U1 Top Cover, is flashed with the Paxs12 firmware, but does not have a dedicated chamber heater.  These statements provide chamber pre-heating and filament macros in the Fluidd or Mainsail interface.
+-   Temp_Control_No_Chamber_Heater has not yet been tested.  Consider this early experimental.  If bugs are found, please report them here.
 
 
 Notes:

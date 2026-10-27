@@ -8,7 +8,9 @@ These files provide Klipper configuration statements to add features useful when
 
 4.  Panda_Breath(DragonBreath)_Control only works on a Snapmaker U1 that includes the official Snapmaker U1 Top Cover, is flashed with the Pax12 firmware and in which a Panda Breath running DragonBreath firmware has been installed.  DO NOT USE THIS IF USING STOCK FIRMWARE IN THE PANDA BREATH!  These statements provide chamber pre-heating and filament macros in the Fluidd or Mainsail interface.
 
-In the Panda_Breath_Control and Panda_Breath(DragonBreath)_Control statements there is the following section defining default drying parameters:  
+Notes:
+
+1.   In the Panda_Breath_Control and Panda_Breath(DragonBreath)_Control statements there is the following section defining default drying parameters:  
 
         'PLA':       {'bed': 50, 'chamber': 50,  'int_fan': 0.40, 'exh_fan': 0.20, 'time': 21600},
         'Silk_PLA':  {'bed': 50, 'chamber': 50,  'int_fan': 0.40, 'exh_fan': 0.20, 'time': 21600},
@@ -19,4 +21,6 @@ In the Panda_Breath_Control and Panda_Breath(DragonBreath)_Control statements th
 
 'bed' is bed temperature, 'chamber' is chamber temperature, 'int_fan' is the Snapmaker U1 Top Cover circulation fan, 'exh_fan' is the Snapmaker U1 Top Cover exaust fan, and time is the time the filament drying cycle runs in seconds (21600 seconds is 6 hours).  
 
-If it is desired to use filament drying and chamber pre-heating macros with a top cover that does not have fans, remove the 'int_fan' and 'exh_fan' settings from the above statements, remove the {% set int_speed = profiles[selected_material].int_fan %} and {% set exh_speed = profiles[selected_material].exh_fan %} statements from the macros, and remove every SET_FAN_SPEED FAN=circulation_fan ... and SET_FAN_SPEED FAN=exhaust_fan ... command from the startup, timer completion, and cancellation macros.  But, this has not been tested on any cover other than the official Snapmaker U1 top cover.  Your milage may vary.
+2.   If it is desired to use filament drying and chamber pre-heating macros with a top cover that does not have fans, remove the 'int_fan' and 'exh_fan' settings from the above statements, remove the {% set int_speed = profiles[selected_material].int_fan %} and {% set exh_speed = profiles[selected_material].exh_fan %} statements from the macros, and remove every SET_FAN_SPEED FAN=circulation_fan ... and SET_FAN_SPEED FAN=exhaust_fan ... command from the startup, timer completion, and cancellation macros.  But, this has not been tested on any cover other than the official Snapmaker U1 top cover.  Your milage may vary.
+
+3.   It is suggested to create a Chamber Heating and Filament Drying macro category in Fluidd or Mainsail, and move the macros into that category.

@@ -27,7 +27,7 @@ That line will need to be re-added to printer.cfg after firmware updates.
 -   Temp_Control_No_Chamber_Heater was tested.  Consider this early beta.  If bugs are found, please report them here.
 
 6.  Temp_Control_No_Chamber_Heater_Stock_Firmware only works on a Snapmaker U1 that includes the official Snapmaker U1 Top Cover, uses stock firmware, but does not have a dedicated chamber heater.  These statements provide chamber pre-heating and filament drying macros in the Fluidd or Mainsail interface.
--   Temp_Control_No_Chamber_Heater has not been tested tested.  Consider this experimental.  If bugs are found, please report them here.
+-   Temp_Control_No_Chamber_Heater has not been tested.  Consider this experimental.  If bugs are found, please report them here.
 
 
 Notes:

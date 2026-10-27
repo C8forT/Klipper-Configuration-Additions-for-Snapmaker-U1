@@ -25,7 +25,7 @@
 # - Stop commands affect the bed and fans, so do not invoke them mid-print.
 #
 # PREHEAT
-# - CHAMBER_PREHEAT_ON defaults to BED=60; accepts BED=0 through BED=70.
+# - CHAMBER_PREHEAT_ON defaults to BED=60; accepts BED=0 through BED=100.
 # - Example: CHAMBER_PREHEAT_ON BED=60
 # - Cancels any dryer countdown, starts bed/fans, and returns immediately.
 # - No timed preheat shutdown is provided; use CHAMBER_PREHEAT_OFF.
@@ -157,8 +157,8 @@ gcode:
         {action_raise_error("Preheat cannot start while a print is active or paused.")}
     {% endif %}
     {% set bed = params.BED|default(60)|float %}
-    {% if bed < 0 or bed > 70 %}
-        {action_raise_error("Use BED between 0 and 70C; verify the installed plate rating.")}
+    {% if bed < 0 or bed > 100 %}
+        {action_raise_error("Use BED between 0 and 100C; verify the installed plate rating.")}
     {% endif %}
     UPDATE_DELAYED_GCODE ID=DRYER_TIMER_LOOP DURATION=0
     SET_GCODE_VARIABLE MACRO=START_FILAMENT_DRYER VARIABLE=time_remaining VALUE=0

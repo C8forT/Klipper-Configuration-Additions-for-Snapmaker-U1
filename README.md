@@ -23,7 +23,7 @@ That line will need to be re-added to printer.cfg after firmware updates.
 4.  Panda_Breath(DragonBreath)_Control only works on a Snapmaker U1 that includes the official Snapmaker U1 Top Cover, is flashed with the Paxx12 firmware, and in which a Panda Breath running DragonBreath firmware has been installed.  DO NOT USE THIS IF USING STOCK FIRMWARE IN THE PANDA BREATH!  These statements provide chamber pre-heating and filament macros in the Fluidd or Mainsail interface.
 -   Panda_Breath(DragonBreath)_Control has been tested and optimized.  Consider this beta.  If bugs are found, please report them here.
 
-5.  Temp_Control_No_Chamber_Heater_Pax12 only works on a Snapmaker U1 that includes the official Snapmaker U1 Top Cover, is flashed with the Paxs12 firmware, but does not have a dedicated chamber heater.  These statements provide chamber pre-heating and filament macros in the Fluidd or Mainsail interface.
+5.  Temp_Control_No_Chamber_Heater_Pax12 only works on a Snapmaker U1 that includes the official Snapmaker U1 Top Cover, is flashed with the Paxx12 firmware, but does not have a dedicated chamber heater.  These statements provide chamber pre-heating and filament macros in the Fluidd or Mainsail interface.
 -   Temp_Control_No_Chamber_Heater was tested.  Consider this early beta.  If bugs are found, please report them here.
 
 6.  Temp_Control_No_Chamber_Heater_Stock_Firmware only works on a Snapmaker U1 that includes the official Snapmaker U1 Top Cover, uses stock firmware, but does not have a dedicated chamber heater.  These statements provide chamber pre-heating and filament macros in the Fluidd or Mainsail interface.

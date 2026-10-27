@@ -2,11 +2,7 @@ These files provide Klipper configuration statements to add features useful when
 
 1.  Rockchip_Temp_Display adds a temperature readout of the U1's Rockchip controller in the Thermals panel of Fluidd or the Temperatures panel of Mainsail.  These statements can be used on any Snapmaker U1.
 
-2.  TMC2240_Configuration optimizes the TMC2240 stepper drivers for use with Snapmaker U1s using the Shenzhen Keli Motor Ltd. model BJ42D29-100V78 stepper motors.  This configuration can be used on any Snapmaker U1 using those stepper motors.
-
-Credit for this configuration goes to crusardgameamos; it is a feature suggestion crusardgameamos posted for Paxx12.  THANK YOU, crusardgameamos!!!
-
-If a future version of Paxx12 includes this or a similar TMC2240 configuration, then remove these statements from your Klipper configuration.
+2.  TMC2240_Configuration optimizes the TMC2240 stepper drivers for use with Snapmaker U1s using the Shenzhen Keli Motor Ltd. model BJ42D29-100V78 stepper motors.  This configuration can be used on any Snapmaker U1 using those stepper motors.  Credit for this configuration goes to crusardgameamos; it is a feature suggestion crusardgameamos posted for Paxx12.  THANK YOU, crusardgameamos!!!  If a future version of Paxx12 includes this or a similar TMC2240 configuration, then remove these statements from your Klipper configuration.
 
 3.  Panda_Breath_Control only works on a Snapmaker U1 that includes the official Snapmaker U1 Top Cover, is flashed with the Pax12 firmware, and in which a Panda Breath running stock firmware 1.0.3 or higher has been installed.  DO NOT USE THIS IF USING DRAGONBREATH FIRMWARE IN THE PANDA BREATH!  These statements provide chamber pre-heating and filament macros in the Fluidd or Mainsail interface.
 

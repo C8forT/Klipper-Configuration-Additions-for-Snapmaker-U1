@@ -3,7 +3,7 @@
 #
 # REQUIREMENTS
 # - Panda Breath running DragonBreath firmware.
-# - Paxx DragonBreath integration configured and working.
+# - Paxx12 DragonBreath integration configured and working.
 # - Existing circulation_fan and exhaust_fan definitions.
 # - M141 commands supplied by the DragonBreath Klipper integration.
 # - These macros use Klipper heater control, not DragonBreath AUTO mode.

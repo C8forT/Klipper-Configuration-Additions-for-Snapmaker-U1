@@ -5,7 +5,9 @@ These can be added to the Klipper configuration via the Fluidd or Mainsail inter
 
 -   If using Paxx12 firmware, copy the statements to Configuration Files/extended/klipper/custom.cfg.  They should stay persistent, even after Paxx12 firmware updates.
 -   If using stock firmware, create a new file in Configuration Files, name that new file 'custom.cfg', and copy the statements to that file.  In printer.cfg add the following line, somewhere near the top:
+  
         [include custom.cfg]
+    
 That line will need to be re-added to printer.cfg after firmware updates.
 -  Note that some of the files work both with stock firmware and Paxx12 firmwhere, while other files work with one or the other.  Carefully read each file's description below for different use cases.
 

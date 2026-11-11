@@ -201,6 +201,7 @@ gcode:
 [gcode_macro CHAMBER_PREHEAT_ON]
 description: Preheat - bed 100C, Stock Panda Breath 60C, nozzles 120C
 gcode:
+    SET_IDLE_TIMEOUT TIMEOUT=1800
     M140 S100
     PANDA_BREATH_DRY_STOP ; End any native drying session before preheating
     M141 S60

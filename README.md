@@ -1,5 +1,6 @@
 These files provide Klipper configuration statements to add features useful when using a top cover on the Snapmaker U1.  
 These can be added to the Klipper configuration via the Fluidd or Mainsail interface.  These files are provided here for development purposes.  AI (ChatGPT) was used in the development of the chamber pre-heating and filament drying configurations.
+A customization file for Fluidd also is provided.
 
 **WHERE TO COPY THE KLIPPER STATEMENTS CONTAINED IN THE FILES (WITH THE EXCEPTION OF CUSTOM.CSS)**
 

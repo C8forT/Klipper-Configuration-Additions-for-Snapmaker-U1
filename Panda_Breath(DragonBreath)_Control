@@ -53,11 +53,11 @@
 [gcode_macro START_FILAMENT_DRYER]
 description: Start an automated active filament drying cycle with UI material selection menu.
 # Defining this list in lowercase variable syntax tells Fluidd/Mainsail to generate a selection UI:
-variable_material: ['PLA', 'Silk_PLA', 'PETG', 'ABS', 'ASA', 'PVA']
+variable_material: ['PLA', 'PETG', 'ABS', 'ASA', 'PVA']
 variable_time_remaining: 0
 gcode:
     # Fetch the choice selected by the user from the interface menu
-    {% set selected_material = params.MATERIAL|default('Silk_PLA')|string %}
+    {% set selected_material = params.MATERIAL|default('PLA')|string %}
     
     # Preset profiles: Bed, DragonBreath Chamber (M141), Quiet Circ Fan, Top Exhaust, Time
     {% set profiles = {
@@ -149,11 +149,6 @@ gcode:
 description: Start the PLA drying profile
 gcode:
     START_FILAMENT_DRYER MATERIAL=PLA
-
-[gcode_macro DRY_SILK_PLA]
-description: Start the Silk PLA drying profile
-gcode:
-    START_FILAMENT_DRYER MATERIAL=Silk_PLA
 
 [gcode_macro DRY_PETG]
 description: Start the PETG drying profile

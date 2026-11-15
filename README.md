@@ -1,7 +1,7 @@
 These files provide Klipper configuration statements to add features useful when using a top cover on the Snapmaker U1.  
 These can be added to the Klipper configuration via the Fluidd or Mainsail interface.  These files are provided here for development purposes.  AI (ChatGPT) was used in the development of the chamber pre-heating and filament drying configurations.
 
-**WHERE TO COPY THE KLIPPER STATEMENTS CONTAINED IN THE FILES**
+**WHERE TO COPY THE KLIPPER STATEMENTS CONTAINED IN THE FILES (WITH THE EXCEPTION OF CUSTOM.CSS)**
 
 -   If using Paxx12 firmware, copy the statements to Configuration Files/extended/klipper/custom.cfg.  They should stay persistent, even after Paxx12 firmware updates.
 -   If using stock firmware, create a new file in Configuration Files, name that new file 'custom.cfg', and copy the statements to that file.  In printer.cfg add the following line, somewhere near the top:
@@ -30,6 +30,28 @@ That line will need to be re-added to printer.cfg after firmware updates.
 
 6.  Temp_Control_No_Chamber_Heater_Stock_Firmware only works on a Snapmaker U1 that includes the official Snapmaker U1 Top Cover, uses stock firmware, but does not have a dedicated chamber heater.  These statements provide chamber pre-heating and filament drying macros in the Fluidd or Mainsail interface.
 -   Temp_Control_No_Chamber_Heater has not been tested.  Consider this experimental.  If bugs are found, please report them here.
+
+7.  custom.css adds customization to Fluidd to keep the 'Printing' window from changing hieght during a print due to the speed changing from <100.0 mm/s to >=100.0 mm/s, which cases the Speed field to change from one to two rows.  Specifically, it moves the column containing 'File', 'Slicer', 'Total' and 'Finish' to the right by 2 characters.  To use custom.css, do the following:
+   
+-  In Fluidd, go to 'Configuration' and in 'Configuration Files' create a new directory named .fluidd-theme (the period in the name is required).
+
+-  In the .fluidd-theme directory, add a file named custom.css.  In that file add the following code:
+
+@media (min-width: 600px) {
+  /* Widen the Speed/Flow column */
+  .v-card:has(.percentComplete)
+  .row.no-gutters > .col-sm-6:first-child {
+    flex: 0 0 calc(50% + 2ch);
+    max-width: calc(50% + 2ch);
+  }
+
+  /* Move the time column right and narrow it */
+  .v-card:has(.percentComplete)
+  .row.no-gutters > .col-sm-6:last-child {
+    flex: 0 0 calc(50% - 2ch);
+    max-width: calc(50% - 2ch);
+  }
+}
 
 
 Notes:

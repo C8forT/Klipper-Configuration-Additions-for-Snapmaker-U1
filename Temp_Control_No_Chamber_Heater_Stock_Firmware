@@ -5,7 +5,7 @@
 # - Load these definitions once through the active Klipper configuration.
 #
 # HEATING
-# - Drying uses only the bed: PLA/Silk PLA/PVA 50C, PETG 60C, ABS/ASA 70C.
+# - Drying uses only the bed: PLA and PVA 50C, PETG 60C, ABS/ASA 70C.
 # - These are starting BED setpoints, not validated drying temperatures.
 # - Chamber preheat uses an 80C bed by default, adjustable from 0 to 100C:
 #     CHAMBER_PREHEAT_ON
@@ -41,7 +41,7 @@
 [gcode_macro START_FILAMENT_DRYER]
 description: Start bed-assisted filament drying with top-cover fans; no chamber heater.
 # Use the DRY_* buttons or pass MATERIAL explicitly; dropdown UI is not guaranteed.
-variable_material: ['PLA', 'Silk_PLA', 'PETG', 'ABS', 'ASA', 'PVA']
+variable_material: ['PLA', 'PETG', 'ABS', 'ASA', 'PVA']
 variable_time_remaining: 0
 gcode:
     {% if printer.print_stats.state in ['printing', 'paused'] %}
@@ -55,7 +55,7 @@ gcode:
     {% endif %}
 
     # Read the requested material
-    {% set selected_material = params.MATERIAL|default('Silk_PLA')|string %}
+    {% set selected_material = params.MATERIAL|default('PLA')|string %}
     
     # Starting profiles: bed setpoint, internal circulation, exhaust, duration in seconds
     {% set profiles = {
@@ -137,11 +137,6 @@ gcode:
 description: Start the PLA drying profile
 gcode:
     START_FILAMENT_DRYER MATERIAL=PLA
-
-[gcode_macro DRY_SILK_PLA]
-description: Start the Silk PLA drying profile
-gcode:
-    START_FILAMENT_DRYER MATERIAL=Silk_PLA
 
 [gcode_macro DRY_PETG]
 description: Start the PETG drying profile

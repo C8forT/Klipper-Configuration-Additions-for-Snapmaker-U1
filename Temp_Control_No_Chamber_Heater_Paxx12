@@ -7,7 +7,7 @@
 # HOW IT WORKS
 # - Drying cycles use the bed and top-cover fans, without a chamber heater.
 # - Chamber preheat also heats all four hotends to 120C, as in the original.
-# - Bed presets: PLA/Silk PLA/PVA 50C; PETG 60C; ABS/ASA 70C.
+# - Bed presets: PLA/PVA 50C; PETG 60C; ABS/ASA 70C.
 # - These are unvalidated starting BED settings, not filament temperatures.
 # - Bed setpoint does NOT regulate chamber air or spool temperature.
 # - Bed-only heating may not reach the temperature needed to dry ABS/ASA
@@ -36,7 +36,7 @@
 [gcode_macro START_FILAMENT_DRYER]
 description: Start bed-assisted filament drying with top-cover fans; no chamber heater.
 # Use the DRY_* buttons or pass MATERIAL explicitly; dropdown UI is not guaranteed.
-variable_material: ['PLA', 'Silk_PLA', 'PETG', 'ABS', 'ASA', 'PVA']
+variable_material: ['PLA', 'PETG', 'ABS', 'ASA', 'PVA']
 variable_time_remaining: 0
 gcode:
     {% if printer.print_stats.state in ['printing', 'paused'] %}
@@ -44,7 +44,7 @@ gcode:
     {% endif %}
 
     # Fetch the choice selected by the user from the interface menu
-    {% set selected_material = params.MATERIAL|default('Silk_PLA')|string %}
+    {% set selected_material = params.MATERIAL|default('PLA')|string %}
     
     # Starting profiles: bed setpoint, internal circulation, exhaust, duration in seconds
     {% set profiles = {
@@ -123,11 +123,6 @@ gcode:
 description: Start the PLA drying profile
 gcode:
     START_FILAMENT_DRYER MATERIAL=PLA
-
-[gcode_macro DRY_SILK_PLA]
-description: Start the Silk PLA drying profile
-gcode:
-    START_FILAMENT_DRYER MATERIAL=Silk_PLA
 
 [gcode_macro DRY_PETG]
 description: Start the PETG drying profile

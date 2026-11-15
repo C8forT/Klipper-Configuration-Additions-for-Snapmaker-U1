@@ -61,8 +61,7 @@ Notes:
 1. In the Panda_Breath_Control and Panda_Breath(DragonBreath)_Control statements there is the following section defining default drying parameters:  
 
         'PLA':       {'bed': 50, 'chamber': 50,  'int_fan': 0.40, 'exh_fan': 0.20, 'time': 21600},
-        'Silk_PLA':  {'bed': 50, 'chamber': 50,  'int_fan': 0.40, 'exh_fan': 0.20, 'time': 21600},
-        'PETG':      {'bed': 60, 'chamber': 60, 'int_fan': 0.45, 'exh_fan': 0.20, 'time': 21600},
+       'PETG':      {'bed': 60, 'chamber': 60, 'int_fan': 0.45, 'exh_fan': 0.20, 'time': 21600},
         'ABS':       {'bed': 70, 'chamber': 70, 'int_fan': 0.50, 'exh_fan': 0.20, 'time': 21600},
         'ASA':       {'bed': 70, 'chamber': 70, 'int_fan': 0.50, 'exh_fan': 0.20, 'time': 21600},
         'PVA':       {'bed': 50, 'chamber': 50,  'int_fan': 0.40, 'exh_fan': 0.20, 'time': 21600}

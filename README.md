@@ -31,7 +31,7 @@ That line will need to be re-added to printer.cfg after firmware updates.
 6.  Temp_Control_No_Chamber_Heater_Stock_Firmware only works on a Snapmaker U1 that includes the official Snapmaker U1 Top Cover, uses stock firmware, but does not have a dedicated chamber heater.  These statements provide chamber pre-heating and filament drying macros in the Fluidd or Mainsail interface.
 -   Temp_Control_No_Chamber_Heater has not been tested.  Consider this experimental.  If bugs are found, please report them here.
 
-7.  custom.css adds customization to Fluidd to keep the 'Printing' window from changing hieght during a print due to the speed changing from <100.0 mm/s to >=100.0 mm/s, which cases the Speed field to change from one to two rows.  Specifically, it moves the column containing 'File', 'Slicer', 'Total' and 'Finish' to the right by 2 characters.  To use custom.css, do the following:
+7.  custom.css adds customization to Fluidd to keep the 'Printing' window from changing hieght during a print due to the speed changing from <100.0 mm/s to >=100.0 mm/s, which causes the Speed field to change from one to two rows, and makes the windows under the Printing window bounce up and down during a print.  Specifically, it moves the column containing 'File', 'Slicer', 'Total' and 'Finish' to the right by 2 characters.  To use custom.css, do the following:
    
 -  In Fluidd, go to 'Configuration' and in 'Configuration Files' create a new directory named .fluidd-theme (the period in the name is required).
 

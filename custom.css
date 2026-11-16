@@ -12,4 +12,12 @@
     flex: 0 0 calc(50% - 2ch);
     max-width: calc(50% - 2ch);
   }
+
+  /* Bring File/Slicer/Total/Finish values closer to their labels */
+  .v-card:has(.percentComplete)
+  .row.no-gutters > .col-sm-6:last-child
+  .layout > span.label {
+    width: 60px !important;
+    min-width: 60px !important;
+  }
 }

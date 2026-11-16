@@ -36,25 +36,7 @@ That line will need to be re-added to printer.cfg after firmware updates.
    
 -  In Fluidd, go to 'Configuration' and in 'Configuration Files' create a new directory named .fluidd-theme (the period in the name is required).
 
--  In the .fluidd-theme directory, add a file named custom.css.  In that file add the following code:
-
-```
-  @media (min-width: 600px) {
-  /* Widen the Speed/Flow column */
-  .v-card:has(.percentComplete)
-  .row.no-gutters > .col-sm-6:first-child {
-    flex: 0 0 calc(50% + 2ch);
-    max-width: calc(50% + 2ch);
-  }
-
-  /* Move the time column right and narrow it */
-  .v-card:has(.percentComplete)
-  .row.no-gutters > .col-sm-6:last-child {
-    flex: 0 0 calc(50% - 2ch);
-    max-width: calc(50% - 2ch);
-  }
-}
-```
+-  In the .fluidd-theme directory, add a file named custom.css.  In that file add the following code from custom.css in the above files:
 
 
 Notes:

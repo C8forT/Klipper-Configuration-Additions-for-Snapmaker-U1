@@ -1,23 +1,30 @@
 @media (min-width: 600px) {
-  /* Widen the Speed/Flow column */
+  /* Speed/Flow column */
   .v-card:has(.percentComplete)
   .row.no-gutters > .col-sm-6:first-child {
-    flex: 0 0 calc(50% + 2ch);
-    max-width: calc(50% + 2ch);
+    flex: 0 0 calc(50% + 1ch);
+    max-width: calc(50% + 1ch);
   }
 
-  /* Move the time column right and narrow it */
+  /* Time column: one character wider than before */
   .v-card:has(.percentComplete)
   .row.no-gutters > .col-sm-6:last-child {
-    flex: 0 0 calc(50% - 2ch);
-    max-width: calc(50% - 2ch);
+    flex: 0 0 calc(50% - 1ch);
+    max-width: calc(50% - 1ch);
   }
 
-  /* Bring File/Slicer/Total/Finish values closer to their labels */
+  /* Spacing between time labels and values */
   .v-card:has(.percentComplete)
   .row.no-gutters > .col-sm-6:last-child
   .layout > span.label {
     width: 60px !important;
     min-width: 60px !important;
+  }
+
+  /* Keep time values on one line */
+  .v-card:has(.percentComplete)
+  .row.no-gutters > .col-sm-6:last-child
+  .layout > span.value > span {
+    white-space: nowrap;
   }
 }
